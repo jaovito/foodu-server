@@ -1,0 +1,190 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type File {
+  id: String!
+  file_key: String!
+  file_url: String!
+}
+
+type User {
+  id: String!
+  name: String!
+  email: String!
+  cel: String!
+  file_id: String
+  latitude: Float
+  longitude: Float
+  doccument: String!
+  password: String!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type CategoriesOnFoodsFD {
+  category_id: String!
+  food_id: String!
+  category: Category!
+}
+
+type FoodsOnUsers {
+  quantity: Int!
+  food_id: String!
+  delivery_time: DateTime!
+  user_id: String!
+  user: User!
+}
+
+type Food {
+  id: String!
+  name: String!
+  about: String
+  size: FoodSize!
+  energy: String!
+  created_at: DateTime!
+  updated_at: DateTime!
+  restaurant_id: String
+  file_id: String
+  file: File
+  restaurant: Restaurant
+  categories_on_foods: [CategoriesOnFoodsFD!]
+  foods_on_users: [FoodsOnUsers!]
+}
+
+enum FoodSize {
+  SMALL
+  MEDIUM
+  BIG
+}
+
+type CategoriesOnRestaurants {
+  category_id: String!
+  restaurant_id: String!
+  restaurant: Restaurant!
+}
+
+type CategoriesOnFoods {
+  category_id: String!
+  food_id: String!
+  food: Food!
+}
+
+type Category {
+  id: String!
+  name: String!
+  created_at: DateTime!
+  updated_at: DateTime!
+  food_id: String
+  file_id: String
+  file: File
+  restaurants: [CategoriesOnRestaurants!]
+  restaurant_id: String
+  foods: [CategoriesOnFoods!]
+}
+
+type CategoriesOnRestaurantsRS {
+  category_id: String!
+  restaurant_id: String!
+  category: Category!
+}
+
+type Restaurant {
+  id: String!
+  name: String!
+  about: String
+  address: String!
+  uf: String!
+  city: String!
+  neighbourhood: String!
+  file_id: String
+  file: File
+  longitude: Float
+  latitude: Float
+  categories_on_restaurants: [CategoriesOnRestaurantsRS!]
+  foods: [Food!]!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type CustomResponse {
+  message: String!
+  status: Float!
+}
+
+type Query {
+  restaurants(categories: [String!]): [Restaurant!]!
+  restaurant(id: String!): Restaurant!
+  categories: [Category!]!
+  category(id: String!): Category!
+  foods(categories: [String!]): [Food!]!
+  food(id: String!): Food!
+}
+
+type Mutation {
+  createRestaurant(createRestaurantInput: CreateRestaurantInput!): Restaurant!
+  updateRestaurant(updateRestaurantInput: UpdateRestaurantInput!): Restaurant!
+  removeRestaurant(id: String!): CustomResponse!
+  createCategory(createCategoryInput: CreateCategoryInput!): Category!
+  updateCategory(updateCategoryInput: UpdateCategoryInput!): Category!
+  removeCategory(id: String!): Category!
+  createFood(createFoodInput: CreateFoodInput!): Food!
+  updateFood(updateFoodInput: UpdateFoodInput!): Food!
+  removeFood(id: String!): CustomResponse!
+}
+
+input CreateRestaurantInput {
+  name: String!
+  about: String
+  address: String!
+  uf: String!
+  city: String!
+  neighbourhood: String!
+  longitude: Float
+  latitude: Float
+}
+
+input UpdateRestaurantInput {
+  name: String
+  about: String
+  address: String
+  uf: String
+  city: String
+  neighbourhood: String
+  longitude: Float
+  latitude: Float
+  id: String!
+}
+
+input CreateCategoryInput {
+  name: String!
+}
+
+input UpdateCategoryInput {
+  name: String
+  id: String!
+}
+
+input CreateFoodInput {
+  name: String!
+  about: String!
+  size: FoodSize
+  energy: String!
+  restaurant_id: String!
+  categories: [String!]!
+}
+
+input UpdateFoodInput {
+  name: String
+  about: String
+  size: FoodSize
+  energy: String
+  restaurant_id: String
+  categories: [String!]
+  id: String!
+}

@@ -1,0 +1,48 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Create .env file
+        run: |
+          touch .env
+          echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
+          echo HASH_PASSWORD=${{ secrets.HASH_PASSWORD }} >> .env
+          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+          echo AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} >> .env
+          echo AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} >> .env
+          echo AWS_DEFAULT_REAGION=${{ secrets.AWS_DEFAULT_REAGION }} >> .env
+          echo AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }} >> .env
+          echo APP_URL=${{ secrets.APP_URL }} >> .env
+
+      - name: Instala as dependencias
+        run: yarn install
+
+      - name: Build project
+        run: yarn build
+
+      - name: Roda migrations
+        run: yarn prisma migrate deploy
+
+      - name: Start project
+        run: pm2 start --name server dist/src/main.js
+
+      - name: Restart project
+        if: failure()
+        run: pm2 restart server

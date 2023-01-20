@@ -1,0 +1,177 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    String @id @unique @default(uuid())
+  name  String
+  email String @unique
+  cel   String
+
+  doccument String?
+
+  avatar  File?   @relation(fields: [file_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  file_id String?
+
+  latitude  Float?
+  longitude Float?
+
+  password String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  roles          Role[]
+  foods_on_users FoodOnUsers[]
+
+  @@map("users")
+}
+
+enum RolesEnum {
+  ADMIN
+  CHEF
+  BLOCKED
+}
+
+model Role {
+  id          String    @id @unique @default(uuid())
+  name        RolesEnum
+  description String?
+
+  users User[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  @@map("roles")
+}
+
+model File {
+  id String @id @unique @default(uuid())
+
+  file_url String
+  file_key String
+
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @default(now())
+  users       User[]
+  foods       Category[]
+  restaurants Restaurant[]
+  Food        Food[]
+
+  @@map("files")
+}
+
+enum FoodSize {
+  SMALL
+  MEDIUM
+  BIG
+}
+
+model Restaurant {
+  id String @id @unique @default(uuid())
+
+  name  String
+  about String?
+
+  address       String
+  uf            String
+  city          String
+  neighbourhood String
+
+  longitude Float?
+  latitude  Float?
+
+  file    File?   @relation(fields: [file_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  file_id String?
+
+  foods Food[]
+
+  created_at                DateTime                  @default(now())
+  updated_at                DateTime                  @default(now())
+  categories_on_restaurants CategoriesOnRestaurants[]
+
+  @@map("restaurants")
+}
+
+model Food {
+  id String @id @unique @default(uuid())
+
+  name   String
+  about  String
+  size   FoodSize @default(MEDIUM)
+  energy String
+
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @default(now())
+  foods_on_users FoodOnUsers[]
+
+  restaurant    Restaurant @relation(fields: [restaurant_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  restaurant_id String
+
+  file    File?   @relation(fields: [file_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  file_id String?
+
+  categories_on_foods CategoriesOnFoods[]
+
+  @@map("foods")
+}
+
+model Category {
+  id String @id @unique @default(uuid())
+
+  name String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  file    File?   @relation(fields: [file_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  file_id String?
+
+  categories_on_foods       CategoriesOnFoods[]
+  categories_on_restaurants CategoriesOnRestaurants[]
+
+  @@map("categories")
+}
+
+model FoodOnUsers {
+  food     Food @relation(fields: [food_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user     User @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  quantity Int
+
+  delivery_time DateTime
+
+  food_id String
+  user_id String
+
+  @@id([food_id, user_id])
+  @@map("foods_on_users")
+}
+
+model CategoriesOnFoods {
+  category    Category @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  category_id String
+  food        Food     @relation(fields: [food_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  food_id     String
+
+  @@id([category_id, food_id])
+  @@map("categories_on_foods")
+}
+
+model CategoriesOnRestaurants {
+  category      Category   @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  category_id   String
+  restaurant    Restaurant @relation(fields: [restaurant_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  restaurant_id String
+
+  @@id([category_id, restaurant_id])
+  @@map("categories_on_restaurants")
+}
