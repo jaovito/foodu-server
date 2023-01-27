@@ -1,7 +1,9 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FileUploadService } from 'src/s3/s3.service';
+import { BuyFoodInput } from './dto/buy-food.input';
 import { CreateFoodInput } from './dto/create-food.input';
+import { FindFoodInput } from './dto/find-foods.input';
 import { UpdateFoodInput } from './dto/update-food.input';
 
 @Injectable()
@@ -116,6 +118,7 @@ export class FoodsService {
         restaurant_id: createFoodInput.restaurant_id,
       },
       include: {
+        file: true,
         categories_on_foods: {
           include: {
             category: true,
@@ -133,10 +136,11 @@ export class FoodsService {
     return food;
   }
 
-  async findAll(categories?: string[]) {
+  async findAll({ restaurant_id, categories }: FindFoodInput) {
     if (categories?.length > 0) {
       const foods = await this.prisma.food.findMany({
         where: {
+          restaurant_id,
           categories_on_foods: {
             some: {
               category: {
@@ -157,6 +161,7 @@ export class FoodsService {
               user: true,
             },
           },
+          file: true,
         },
       });
 
@@ -164,7 +169,11 @@ export class FoodsService {
     }
 
     const foods = await this.prisma.food.findMany({
+      where: {
+        restaurant_id,
+      },
       include: {
+        file: true,
         categories_on_foods: {
           include: {
             category: true,
@@ -186,6 +195,7 @@ export class FoodsService {
     const food = await this.prisma.food.findFirst({
       where: { id },
       include: {
+        file: true,
         categories_on_foods: {
           include: {
             category: true,
@@ -201,6 +211,92 @@ export class FoodsService {
     });
 
     return food;
+  }
+
+  async buyFood({ food_id, user_id }: BuyFoodInput) {
+    let user = await this.prisma.user.findFirst({
+      where: { id: user_id },
+    });
+
+    if (!user) {
+      throw new HttpException('User does not exists', 400);
+    }
+
+    const food = await this.prisma.food.findFirst({
+      where: { id: food_id },
+    });
+
+    if (!food) {
+      throw new HttpException('Food does not exists', 400);
+    }
+
+    const suficientValue = user.value >= food.price;
+
+    if (!suficientValue) {
+      throw new HttpException('You does not have suficient value', 400);
+    }
+
+    user = await this.prisma.user.update({
+      where: { id: user_id },
+      data: {
+        value: user.value - food.price <= 0 ? 0 : user.value - food.price,
+      },
+    });
+
+    const addedFood = await this.prisma.foodOnUsers.create({
+      data: {
+        food_id,
+        user_id,
+        delivery_time: '15 min',
+        quantity: 1,
+      },
+      include: {
+        food: {
+          include: {
+            file: true,
+            restaurant: true,
+            categories_on_foods: {
+              include: {
+                category: true,
+              },
+            },
+          },
+        },
+        user: true,
+      },
+    });
+
+    return addedFood;
+  }
+
+  async findAllUserFood(user_id: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { id: user_id },
+    });
+
+    if (!user) {
+      throw new HttpException('User does not exists', 400);
+    }
+
+    const foods = await this.prisma.food.findMany({
+      where: { foods_on_users: { some: { user_id } } },
+      include: {
+        file: true,
+        categories_on_foods: {
+          include: {
+            category: true,
+          },
+        },
+        restaurant: true,
+        foods_on_users: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+
+    return foods;
   }
 
   async update(id: string, updateFoodInput: UpdateFoodInput) {

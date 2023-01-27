@@ -1,4 +1,4 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { ObjectType, Field, Int, Float } from '@nestjs/graphql';
 import {
   Food as DBFood,
   FoodSize,
@@ -23,7 +23,7 @@ class CategoriesOnFoodsFD implements DBCategoriesOnFoods {
 }
 
 @ObjectType()
-class FoodsOnUsers implements DBFoodOnUsers {
+export class FoodsOnUsers implements DBFoodOnUsers {
   @Field(() => Int)
   quantity: number;
 
@@ -50,6 +50,9 @@ export class Food implements DBFood {
 
   @Field({ nullable: true })
   about: string;
+
+  @Field(() => Float)
+  price: number;
 
   @Field(() => FoodSize, { defaultValue: FoodSize.MEDIUM })
   size: FoodSize;

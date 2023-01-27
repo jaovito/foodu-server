@@ -1,4 +1,4 @@
-import { InputType, Field } from '@nestjs/graphql';
+import { InputType, Field, Float } from '@nestjs/graphql';
 import { FoodSize, Prisma } from '@prisma/client';
 
 @InputType()
@@ -7,6 +7,9 @@ export class CreateFoodInput
 {
   @Field()
   name: string;
+
+  @Field(() => Float)
+  price: number;
 
   @Field()
   about: string;

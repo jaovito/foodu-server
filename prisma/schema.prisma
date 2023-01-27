@@ -15,6 +15,7 @@ model User {
   name  String
   email String @unique
   cel   String
+  value Float  @default(0)
 
   doccument String?
 
@@ -109,6 +110,7 @@ model Food {
   about  String
   size   FoodSize @default(MEDIUM)
   energy String
+  price  Float    @default(0)
 
   created_at     DateTime      @default(now())
   updated_at     DateTime      @default(now())

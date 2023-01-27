@@ -13,6 +13,7 @@ type User {
   name: String!
   email: String!
   cel: String!
+  value: Float!
   file_id: String
   latitude: Float
   longitude: Float
@@ -45,6 +46,7 @@ type Food {
   id: String!
   name: String!
   about: String
+  price: Float!
   size: FoodSize!
   energy: String!
   created_at: DateTime!
@@ -122,8 +124,14 @@ type Query {
   restaurant(id: String!): Restaurant!
   categories: [Category!]!
   category(id: String!): Category!
-  foods(categories: [String!]): [Food!]!
+  foods(findFoodInput: FindFoodInput!): [Food!]!
   food(id: String!): Food!
+  findAllUserFood: [Food!]!
+}
+
+input FindFoodInput {
+  restaurant_id: String!
+  categories: [String!]
 }
 
 type Mutation {
@@ -134,6 +142,7 @@ type Mutation {
   updateCategory(updateCategoryInput: UpdateCategoryInput!): Category!
   removeCategory(id: String!): Category!
   createFood(createFoodInput: CreateFoodInput!): Food!
+  buyFood(buyFoodInput: BuyFoodInput!): FoodsOnUsers!
   updateFood(updateFoodInput: UpdateFoodInput!): Food!
   removeFood(id: String!): CustomResponse!
 }
@@ -172,6 +181,7 @@ input UpdateCategoryInput {
 
 input CreateFoodInput {
   name: String!
+  price: Float!
   about: String!
   size: FoodSize
   energy: String!
@@ -179,8 +189,16 @@ input CreateFoodInput {
   categories: [String!]!
 }
 
+input BuyFoodInput {
+  food_id: String!
+  user_id: String!
+  delivery_time: String!
+  quantity: Int!
+}
+
 input UpdateFoodInput {
   name: String
+  price: Float
   about: String
   size: FoodSize
   energy: String

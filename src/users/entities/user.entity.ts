@@ -1,4 +1,4 @@
-import { Extensions, Field, ObjectType } from '@nestjs/graphql';
+import { Extensions, Field, Float, ObjectType } from '@nestjs/graphql';
 import { User as DBUser } from '@prisma/client';
 import { Role } from 'src/roles/enums/role.enum';
 import { checkRoleMiddleware } from 'src/roles/gql-role.middleware';
@@ -16,6 +16,9 @@ export class User implements DBUser {
 
   @Field()
   cel: string;
+
+  @Field(() => Float, { defaultValue: 0 })
+  value: number;
 
   @Field({ nullable: true })
   file_id: string;

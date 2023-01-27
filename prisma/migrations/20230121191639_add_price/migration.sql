@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "foods" ADD COLUMN     "price" DOUBLE PRECISION NOT NULL DEFAULT 0;
