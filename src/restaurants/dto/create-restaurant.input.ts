@@ -24,6 +24,9 @@ export class CreateRestaurantInput implements Prisma.RestaurantCreateInput {
   @Field(() => Float, { nullable: true })
   longitude: number;
 
+  @Field(() => Float, { defaultValue: 10 })
+  max_distance: number;
+
   @Field(() => Float, { nullable: true })
   latitude: number;
 }

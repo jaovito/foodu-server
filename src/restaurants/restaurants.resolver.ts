@@ -9,6 +9,7 @@ import { GqlAuthGuard } from 'src/auth/gql-auth.guard';
 import { GqlRolesGuard } from 'src/roles/gql.role.guard';
 import { Roles } from 'src/roles/roles.decorator';
 import { Role } from 'src/roles/enums/role.enum';
+import { FindAllRestaurantsInput } from './dto/find-restaurants.input';
 
 @UseGuards(GqlAuthGuard, GqlRolesGuard)
 @Resolver(() => Restaurant)
@@ -25,10 +26,10 @@ export class RestaurantsResolver {
 
   @Query(() => [Restaurant], { name: 'restaurants' })
   findAll(
-    @Args('categories', { type: () => [String], nullable: true })
-    categories: string[],
+    @Args('findAllRestaurantsInput')
+    FindAllRestaurantsInput: FindAllRestaurantsInput,
   ) {
-    return this.restaurantsService.findAll(categories);
+    return this.restaurantsService.findAll(FindAllRestaurantsInput);
   }
 
   @Query(() => Restaurant, { name: 'restaurant' })

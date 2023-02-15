@@ -87,6 +87,7 @@ model Restaurant {
   uf            String
   city          String
   neighbourhood String
+  max_distance  Float  @default(10)
 
   longitude Float?
   latitude  Float?

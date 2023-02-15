@@ -109,6 +109,7 @@ type Restaurant {
   longitude: Float
   latitude: Float
   categories_on_restaurants: [CategoriesOnRestaurantsRS!]
+  max_distance: Float!
   foods: [Food!]!
   created_at: DateTime!
   updated_at: DateTime!
@@ -120,13 +121,19 @@ type CustomResponse {
 }
 
 type Query {
-  restaurants(categories: [String!]): [Restaurant!]!
+  restaurants(findAllRestaurantsInput: FindAllRestaurantsInput!): [Restaurant!]!
   restaurant(id: String!): Restaurant!
   categories: [Category!]!
   category(id: String!): Category!
   foods(findFoodInput: FindFoodInput!): [Food!]!
   food(id: String!): Food!
   findAllUserFood: [Food!]!
+}
+
+input FindAllRestaurantsInput {
+  latitude: Float
+  longitude: Float
+  categories: [String!]
 }
 
 input FindFoodInput {
@@ -155,6 +162,7 @@ input CreateRestaurantInput {
   city: String!
   neighbourhood: String!
   longitude: Float
+  max_distance: Float! = 10
   latitude: Float
 }
 
@@ -166,6 +174,7 @@ input UpdateRestaurantInput {
   city: String
   neighbourhood: String
   longitude: Float
+  max_distance: Float = 10
   latitude: Float
   id: String!
 }

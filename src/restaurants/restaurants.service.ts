@@ -1,7 +1,9 @@
 import { HttpException, Injectable } from '@nestjs/common';
+import { Prisma, Restaurant } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FileUploadService } from 'src/s3/s3.service';
 import { CreateRestaurantInput } from './dto/create-restaurant.input';
+import { FindAllRestaurantsInput } from './dto/find-restaurants.input';
 import { UpdateRestaurantInput } from './dto/update-restaurant.input';
 
 @Injectable()
@@ -9,7 +11,12 @@ export class RestaurantsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly fileService: FileUploadService,
-  ) {}
+  ) {
+    prisma.$on<any>('query', (event: Prisma.QueryEvent) => {
+      console.log('Query: ' + event.query);
+      console.log('Duration: ' + event.duration + 'ms');
+    });
+  }
 
   async uploadFile(id: string, file: Express.Multer.File) {
     if (!file?.filename) {
@@ -77,8 +84,32 @@ export class RestaurantsService {
     return restaurant;
   }
 
-  async findAll(categories?: string[]) {
+  async findAll({ latitude, longitude, categories }: FindAllRestaurantsInput) {
+    const restaurantsByDistance = await this.prisma.$queryRaw<Restaurant[]>`
+    SELECT 
+      restaurants.*,
+      to_json("files") AS "file"
+    FROM (
+        SELECT *,
+        (
+          6371 * acos(cos(radians(${Number(latitude)}))
+          * cos(radians(latitude))
+          * cos(radians(longitude)
+          - radians(${Number(longitude)}))
+          + sin(radians(${Number(latitude)}))
+          * sin(radians(latitude)))
+        ) as distance
+        FROM restaurants
+    ) as restaurants
+    LEFT JOIN files
+    ON files.id = restaurants.file_id
+    WHERE distance < restaurants.max_distance;`;
+
     if (categories?.length > 0) {
+      const restaurantsWithCategories = restaurantsByDistance.map(
+        (restaurant) => restaurant.id,
+      );
+
       const restaurants = await this.prisma.restaurant.findMany({
         where: {
           categories_on_restaurants: {
@@ -88,6 +119,7 @@ export class RestaurantsService {
               },
             },
           },
+          id: { in: restaurantsWithCategories },
         },
         include: {
           file: true,
@@ -103,9 +135,38 @@ export class RestaurantsService {
       return restaurants;
     }
 
-    const restaurants = await this.prisma.restaurant.findMany();
+    const restaurantsRaw = await Promise.all(
+      await restaurantsByDistance?.map(async (restaurant) => {
+        const foods = await this.prisma.food.findMany({
+          where: { restaurant_id: restaurant.id },
+          include: {
+            file: true,
+            categories_on_foods: {
+              include: {
+                category: true,
+              },
+            },
+            foods_on_users: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        });
 
-    return restaurants;
+        const categories_on_restaurants =
+          await this.prisma.categoriesOnRestaurants.findMany({
+            where: { restaurant_id: restaurant.id },
+            include: {
+              category: true,
+            },
+          });
+
+        return { ...restaurant, foods, categories_on_restaurants };
+      }),
+    );
+
+    return restaurantsRaw;
   }
 
   async findOne(id: string) {

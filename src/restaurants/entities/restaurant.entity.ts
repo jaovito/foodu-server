@@ -57,6 +57,9 @@ export class Restaurant implements DBRestaurant {
   @Field(() => [CategoriesOnRestaurantsRS], { nullable: true })
   categories_on_restaurants: CategoriesOnRestaurantsRS[];
 
+  @Field(() => Float, { defaultValue: 10 })
+  max_distance: number;
+
   @Field(() => [Food])
   foods: Food[];
 
