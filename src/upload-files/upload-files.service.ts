@@ -1,6 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import * as AWS from 'aws-sdk';
 import * as uuid from 'uuid';
+import { createWriteStream } from 'fs';
 
 import { S3ReadStream } from 's3-readstream';
 
@@ -11,7 +12,12 @@ export class FileUploadService {
     accessKeyId: process.env.AWS_S3_ACCESS_KEY,
     secretAccessKey: process.env.AWS_S3_KEY_SECRET,
   });
+  provider = {
+    s3: this.s3_upload,
+    localStorage: this.uploadLocalFile,
+  };
 
+  // file stream
   async createAWSStream(file_key: string): Promise<S3ReadStream> {
     return new Promise((resolve, reject) => {
       const bucketParams = {
@@ -42,19 +48,41 @@ export class FileUploadService {
     });
   }
 
-  async uploadFile(file) {
+  // upload file
+  async uploadFile(file: Express.Multer.File) {
     const { originalname } = file;
 
-    return await this.s3_upload(
+    return this.provider[process.env.FILE_PROVIDER](
       file.buffer,
-      this.AWS_S3_BUCKET,
       originalname,
       file.mimetype,
     );
   }
 
-  async s3_upload(file, bucket, name, mimetype) {
+  async uploadLocalFile(
+    file: Express.Multer.File['buffer'],
+    originalname: string,
+  ) {
+    const filteredName = originalname.replace(/\s+/g, '');
+    const filename = `${uuid.v4()}_${filteredName}`;
+
+    const ws = createWriteStream(`./files/${filename}`);
+    ws.write(file);
+
+    return {
+      Key: filename,
+      Location: `${process.env.API_URL}/files/${filename}`,
+    };
+  }
+
+  // s3 upload file
+  async s3_upload(
+    file: Express.Multer.File['buffer'],
+    name: string,
+    mimetype: string,
+  ) {
     const filteredName = name.replace(/\s+/g, '');
+    const bucket = this.AWS_S3_BUCKET;
 
     const params = {
       Bucket: bucket,

@@ -1,6 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { FileUploadService } from 'src/s3/s3.service';
+import { FileUploadService } from 'src/upload-files/upload-files.service';
 import { BuyFoodInput } from './dto/buy-food.input';
 import { CreateFoodInput } from './dto/create-food.input';
 import { FindFoodInput } from './dto/find-foods.input';
