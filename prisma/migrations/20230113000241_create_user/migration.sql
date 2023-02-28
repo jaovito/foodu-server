@@ -52,3 +52,22 @@ ALTER TABLE "_RoleToUser" ADD CONSTRAINT "_RoleToUser_A_fkey" FOREIGN KEY ("A") 
 
 -- AddForeignKey
 ALTER TABLE "_RoleToUser" ADD CONSTRAINT "_RoleToUser_B_fkey" FOREIGN KEY ("B") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+INSERT INTO 
+"users" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "cel" TEXT NOT NULL,
+    "doccument" TEXT,
+    "password" TEXT NOT NULL
+)
+VALUES (
+    'afd1d41b-3fee-4c43-b7f3-aaf2a76facaf',
+    'Teste',
+    'teste@gmail.com',
+    '+55 (11) 12345-1234',
+    '123.456.789-10',
+    '$2y$12$IN6AkmvomQjCjbHKMyCVu.l4fqaQ22ShFw5./2VqJcm6g/GWlFEqq'
+)
