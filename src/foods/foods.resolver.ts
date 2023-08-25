@@ -1,6 +1,6 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { FoodsService } from './foods.service';
-import { Food, FoodsOnUsers } from './entities/food.entity';
+import { BuyedFood, Food } from './entities/food.entity';
 import { CreateFoodInput } from './dto/create-food.input';
 import { UpdateFoodInput } from './dto/update-food.input';
 import { CustomResponse } from 'src/utils/custom-response';
@@ -43,7 +43,7 @@ export class FoodsResolver {
     return this.foodsService.findAllUserFood(user.id);
   }
 
-  @Mutation(() => FoodsOnUsers, { name: 'buyFood' })
+  @Mutation(() => BuyedFood, { name: 'buyFood' })
   buyFood(@Args('buyFoodInput') buyFoodInput: BuyFoodInput) {
     return this.foodsService.buyFood(buyFoodInput);
   }

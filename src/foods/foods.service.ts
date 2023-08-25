@@ -30,11 +30,7 @@ export class FoodsService {
           },
         },
         file: true,
-        foods_on_users: {
-          include: {
-            user: true,
-          },
-        },
+
         restaurant: true,
       },
     });
@@ -60,11 +56,7 @@ export class FoodsService {
           },
         },
         file: true,
-        foods_on_users: {
-          include: {
-            user: true,
-          },
-        },
+
         restaurant: true,
       },
     });
@@ -85,6 +77,7 @@ export class FoodsService {
             about: createFoodInput.about,
             energy: createFoodInput.energy,
             restaurant_id: createFoodInput.restaurant_id,
+            price: createFoodInput.price,
             categories_on_foods: {
               create: {
                 category_id: category.id,
@@ -98,11 +91,6 @@ export class FoodsService {
               },
             },
             restaurant: true,
-            foods_on_users: {
-              include: {
-                user: true,
-              },
-            },
           },
         });
 
@@ -125,11 +113,6 @@ export class FoodsService {
           },
         },
         restaurant: true,
-        foods_on_users: {
-          include: {
-            user: true,
-          },
-        },
       },
     });
 
@@ -156,11 +139,6 @@ export class FoodsService {
             },
           },
           restaurant: true,
-          foods_on_users: {
-            include: {
-              user: true,
-            },
-          },
           file: true,
         },
       });
@@ -180,11 +158,6 @@ export class FoodsService {
           },
         },
         restaurant: true,
-        foods_on_users: {
-          include: {
-            user: true,
-          },
-        },
       },
     });
 
@@ -202,11 +175,6 @@ export class FoodsService {
           },
         },
         restaurant: true,
-        foods_on_users: {
-          include: {
-            user: true,
-          },
-        },
       },
     });
 
@@ -243,25 +211,14 @@ export class FoodsService {
       },
     });
 
-    const addedFood = await this.prisma.foodOnUsers.create({
+    const addedFood = await this.prisma.buyedFood.create({
       data: {
-        food_id,
+        ...food,
         user_id,
         delivery_time: '15 min',
         quantity: 1,
       },
       include: {
-        food: {
-          include: {
-            file: true,
-            restaurant: true,
-            categories_on_foods: {
-              include: {
-                category: true,
-              },
-            },
-          },
-        },
         user: true,
       },
     });
@@ -278,21 +235,11 @@ export class FoodsService {
       throw new HttpException('User does not exists', 400);
     }
 
-    const foods = await this.prisma.food.findMany({
-      where: { foods_on_users: { some: { user_id } } },
+    const foods = await this.prisma.buyedFood.findMany({
+      where: { user_id },
       include: {
         file: true,
-        categories_on_foods: {
-          include: {
-            category: true,
-          },
-        },
         restaurant: true,
-        foods_on_users: {
-          include: {
-            user: true,
-          },
-        },
       },
     });
 

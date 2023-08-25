@@ -17,14 +17,19 @@ export class RestaurantsResolver {
   constructor(private readonly restaurantsService: RestaurantsService) {}
 
   @Roles(Role.ADMIN, Role.CHEF)
-  @Mutation(() => Restaurant)
+  @Mutation(() => Restaurant, {
+    description: 'Creates a restaurant using RestaurantInput',
+  })
   createRestaurant(
     @Args('createRestaurantInput') createRestaurantInput: CreateRestaurantInput,
   ) {
     return this.restaurantsService.create(createRestaurantInput);
   }
 
-  @Query(() => [Restaurant], { name: 'restaurants' })
+  @Query(() => [Restaurant], {
+    name: 'restaurants',
+    description: 'Find all restaurants by proximity (latitude and longitude)',
+  })
   findAll(
     @Args('findAllRestaurantsInput')
     FindAllRestaurantsInput: FindAllRestaurantsInput,
@@ -32,13 +37,19 @@ export class RestaurantsResolver {
     return this.restaurantsService.findAll(FindAllRestaurantsInput);
   }
 
-  @Query(() => Restaurant, { name: 'restaurant' })
+  @Query(() => Restaurant, {
+    name: 'restaurant',
+    description: 'Find one restaurant by ID',
+  })
   findOne(@Args('id', { type: () => String }) id: string) {
     return this.restaurantsService.findOne(id);
   }
 
   @Roles(Role.ADMIN, Role.CHEF)
-  @Mutation(() => Restaurant)
+  @Mutation(() => Restaurant, {
+    description:
+      'Updates a restaurant, only admin or chef is allowed to update it',
+  })
   updateRestaurant(
     @Args('updateRestaurantInput') updateRestaurantInput: UpdateRestaurantInput,
   ) {
@@ -49,7 +60,10 @@ export class RestaurantsResolver {
   }
 
   @Roles(Role.ADMIN, Role.CHEF)
-  @Mutation(() => CustomResponse)
+  @Mutation(() => CustomResponse, {
+    description:
+      'Delete a restaurant, only admin or chef is allowed to delete it',
+  })
   removeRestaurant(@Args('id', { type: () => String }) id: string) {
     return this.restaurantsService.remove(id);
   }

@@ -30,8 +30,8 @@ model User {
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
 
-  roles          Role[]
-  foods_on_users FoodOnUsers[]
+  roles       Role[]
+  buyed_foods BuyedFood[]
 
   @@map("users")
 }
@@ -64,9 +64,10 @@ model File {
   created_at  DateTime     @default(now())
   updated_at  DateTime     @default(now())
   users       User[]
-  foods       Category[]
+  categories  Category[]
   restaurants Restaurant[]
-  Food        Food[]
+  foods       Food[]
+  buyed_foods BuyedFood[]
 
   @@map("files")
 }
@@ -100,6 +101,7 @@ model Restaurant {
   created_at                DateTime                  @default(now())
   updated_at                DateTime                  @default(now())
   categories_on_restaurants CategoriesOnRestaurants[]
+  selled                    BuyedFood[]
 
   @@map("restaurants")
 }
@@ -113,9 +115,8 @@ model Food {
   energy String
   price  Float    @default(0)
 
-  created_at     DateTime      @default(now())
-  updated_at     DateTime      @default(now())
-  foods_on_users FoodOnUsers[]
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
 
   restaurant    Restaurant @relation(fields: [restaurant_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   restaurant_id String
@@ -145,18 +146,30 @@ model Category {
   @@map("categories")
 }
 
-model FoodOnUsers {
-  food     Food @relation(fields: [food_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  user     User @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  quantity Int
+model BuyedFood {
+  id String @id @unique @default(uuid())
 
+  name          String
+  about         String
+  size          FoodSize @default(MEDIUM)
+  energy        String
+  price         Float    @default(0)
+  quantity      Int
   delivery_time DateTime
 
-  food_id String
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  restaurant    Restaurant @relation(fields: [restaurant_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  restaurant_id String
+
+  file    File?   @relation(fields: [file_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  file_id String?
+
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   user_id String
 
-  @@id([food_id, user_id])
-  @@map("foods_on_users")
+  @@map("buyed_foods")
 }
 
 model CategoriesOnFoods {

@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
@@ -16,6 +20,10 @@ export class AuthService {
         roles: true,
       },
     });
+
+    if (!user) {
+      throw new HttpException('User not found', 400);
+    }
 
     const validPassword = await bcrypt.compare(password, user.password);
 

@@ -12,5 +12,5 @@ export class BuyFoodInput {
   delivery_time: string;
 
   @Field(() => Int)
-  quantity: number;
+  counter: number;
 }

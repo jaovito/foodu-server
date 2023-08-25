@@ -34,12 +34,28 @@ type CategoriesOnFoodsFD {
   category: Category!
 }
 
-type FoodsOnUsers {
+type BuyedFood {
+  id: String!
+  name: String!
+  about: String!
+  size: FoodSize!
+  energy: String!
+  price: Float!
+  created_at: DateTime!
+  updated_at: DateTime!
+  restaurant_id: String!
+  file_id: String!
   quantity: Int!
   food_id: String!
   delivery_time: DateTime!
   user_id: String!
   user: User!
+}
+
+enum FoodSize {
+  SMALL
+  MEDIUM
+  BIG
 }
 
 type Food {
@@ -56,13 +72,6 @@ type Food {
   file: File
   restaurant: Restaurant
   categories_on_foods: [CategoriesOnFoodsFD!]
-  foods_on_users: [FoodsOnUsers!]
-}
-
-enum FoodSize {
-  SMALL
-  MEDIUM
-  BIG
 }
 
 type CategoriesOnRestaurants {
@@ -121,7 +130,10 @@ type CustomResponse {
 }
 
 type Query {
+  """Find all restaurants by proximity (latitude and longitude)"""
   restaurants(findAllRestaurantsInput: FindAllRestaurantsInput!): [Restaurant!]!
+
+  """Find one restaurant by ID"""
   restaurant(id: String!): Restaurant!
   categories: [Category!]!
   category(id: String!): Category!
@@ -130,9 +142,17 @@ type Query {
   findAllUserFood: [Food!]!
 }
 
+"""
+It's the input used to find all restaurants using the proximity (latitude and longitude)
+"""
 input FindAllRestaurantsInput {
+  """It's the use latitude"""
   latitude: Float
+
+  """It's the use longitude"""
   longitude: Float
+
+  """It's the categories of the restaurant, the categories can be null"""
   categories: [String!]
 }
 
@@ -142,18 +162,27 @@ input FindFoodInput {
 }
 
 type Mutation {
+  """Creates a restaurant using RestaurantInput"""
   createRestaurant(createRestaurantInput: CreateRestaurantInput!): Restaurant!
+
+  """Updates a restaurant, only admin or chef is allowed to update it"""
   updateRestaurant(updateRestaurantInput: UpdateRestaurantInput!): Restaurant!
+
+  """Delete a restaurant, only admin or chef is allowed to delete it"""
   removeRestaurant(id: String!): CustomResponse!
   createCategory(createCategoryInput: CreateCategoryInput!): Category!
   updateCategory(updateCategoryInput: UpdateCategoryInput!): Category!
   removeCategory(id: String!): Category!
   createFood(createFoodInput: CreateFoodInput!): Food!
-  buyFood(buyFoodInput: BuyFoodInput!): FoodsOnUsers!
+  buyFood(buyFoodInput: BuyFoodInput!): BuyedFood!
   updateFood(updateFoodInput: UpdateFoodInput!): Food!
   removeFood(id: String!): CustomResponse!
+  createWallet(addValue: CreateWalletInput!): User!
 }
 
+"""
+It's the input to create a restaurant, the restaurant only can be created by one administrator or chef.
+"""
 input CreateRestaurantInput {
   name: String!
   about: String
@@ -166,6 +195,9 @@ input CreateRestaurantInput {
   latitude: Float
 }
 
+"""
+It's the input to update the restaurant, need to fill the ID of the restaurant
+"""
 input UpdateRestaurantInput {
   name: String
   about: String
@@ -202,7 +234,7 @@ input BuyFoodInput {
   food_id: String!
   user_id: String!
   delivery_time: String!
-  quantity: Int!
+  counter: Int!
 }
 
 input UpdateFoodInput {
@@ -214,4 +246,9 @@ input UpdateFoodInput {
   restaurant_id: String
   categories: [String!]
   id: String!
+}
+
+input CreateWalletInput {
+  """Its the value of user want to add"""
+  value: Float!
 }

@@ -13,6 +13,7 @@ import { RestaurantsModule } from './restaurants/restaurants.module';
 import { CategoriesModule } from './categories/categories.module';
 import { FoodsModule } from './foods/foods.module';
 import { join } from 'path';
+import { WalletsModule } from './wallets/wallets.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { join } from 'path';
     RestaurantsModule,
     CategoriesModule,
     FoodsModule,
+    WalletsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

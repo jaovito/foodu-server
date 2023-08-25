@@ -1,7 +1,10 @@
 import { InputType, Field, Float } from '@nestjs/graphql';
 import { Prisma } from '@prisma/client';
 
-@InputType()
+@InputType({
+  description:
+    "It's the input to create a restaurant, the restaurant only can be created by one administrator or chef.",
+})
 export class CreateRestaurantInput implements Prisma.RestaurantCreateInput {
   @Field()
   name: string;

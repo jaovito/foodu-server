@@ -3,7 +3,7 @@ import {
   Food as DBFood,
   FoodSize,
   CategoriesOnFoods as DBCategoriesOnFoods,
-  FoodOnUsers as DBFoodOnUsers,
+  BuyedFood as DBBuyedFood,
 } from '@prisma/client';
 import { Category } from 'src/categories/entities/category.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
@@ -23,7 +23,37 @@ class CategoriesOnFoodsFD implements DBCategoriesOnFoods {
 }
 
 @ObjectType()
-export class FoodsOnUsers implements DBFoodOnUsers {
+export class BuyedFood implements DBBuyedFood {
+  @Field()
+  id: string;
+
+  @Field()
+  name: string;
+
+  @Field()
+  about: string;
+
+  @Field(() => FoodSize)
+  size: FoodSize;
+
+  @Field()
+  energy: string;
+
+  @Field()
+  price: number;
+
+  @Field()
+  created_at: Date;
+
+  @Field()
+  updated_at: Date;
+
+  @Field()
+  restaurant_id: string;
+
+  @Field()
+  file_id: string;
+
   @Field(() => Int)
   quantity: number;
 
@@ -80,7 +110,4 @@ export class Food implements DBFood {
 
   @Field(() => [CategoriesOnFoodsFD], { nullable: true })
   categories_on_foods: CategoriesOnFoodsFD[];
-
-  @Field(() => [FoodsOnUsers], { nullable: true })
-  foods_on_users: FoodsOnUsers[];
 }

@@ -146,11 +146,6 @@ export class RestaurantsService {
                 category: true,
               },
             },
-            foods_on_users: {
-              include: {
-                user: true,
-              },
-            },
           },
         });
 
